@@ -1,44 +1,69 @@
 pipeline {
     agent any
 
+    environment {
+        GRADLE_IMAGE = "gradle:7.0-jdk17"
+        SPRING_APP_IMAGE = "your-spring-app-image"
+    }
+
     stages {
-        stage('Checkout') {
+        stage("Build") {
             steps {
-                // Bước này dùng để lấy mã nguồn từ repository Git hoặc SVN
-                checkout scm
+                script {
+                    // Xây dựng ứng dụng Spring Boot bằng Gradle
+                    docker.image(GRADLE_IMAGE).inside {
+                        sh "gradle build"
+                    }
+                }
             }
         }
 
-        stage('Build') {
+        stage("Test") {
             steps {
-                // Bước này dùng để xây dựng ứng dụng Spring Boot
-                sh './gradlew build' // Hoặc './gradlew build' nếu bạn sử dụng Gradle
+                script {
+                    // Chạy các bài kiểm tra của ứng dụng Spring Boot
+                    docker.image(GRADLE_IMAGE).inside {
+                        sh "gradle test"
+                    }
+                }
             }
         }
 
-        stage('Test') {
+        stage("Package") {
             steps {
-                // Bước này dùng để chạy các bài kiểm tra
-                sh './gradlew test' // Hoặc './gradlew test' nếu bạn sử dụng Gradle
+                script {
+                    // Copy các tệp liên quan đến ứng dụng Spring Boot vào thư mục build
+                    sh "cp -r build/libs /tmp/"
+                }
             }
         }
 
-        stage('Deploy') {
+        stage("Deploy") {
             steps {
-                // Bước này dùng để triển khai ứng dụng Spring Boot, ví dụ qua Docker hoặc một máy chủ ứng dụng
-                sh 'docker build -t my-spring-app . && docker run -p 8081:8081 my-spring-app' // Ví dụ triển khai qua Docker
+                script {
+                    // Xây dựng ảnh Docker cho ứng dụng Spring Boot
+                    docker.build(SPRING_APP_IMAGE, "--build-arg JAR_FILE=/tmp/libs/your-spring-app.jar .")
+
+                    // Đăng nhập vào Docker Hub hoặc hệ thống Docker Registry
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
+                    }
+
+                    // Đẩy ảnh Docker lên Docker Registry
+                    docker.withRegistry('https://registry.example.com', 'docker-hub') {
+                        sh "docker push $SPRING_APP_IMAGE"
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            // Bước này được thực hiện nếu pipeline chạy thành công
-            echo 'Build and deployment successful!'
+            echo "SUCCESSFUL"
         }
         failure {
-            // Bước này được thực hiện nếu pipeline thất bại
-            echo 'Build or deployment failed!'
+            echo "FAILED"
         }
     }
 }
