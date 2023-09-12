@@ -1,69 +1,53 @@
 pipeline {
-    agent any
 
-    environment {
-        GRADLE_IMAGE = "gradle:7.2.0-jdk17"
-        SPRING_APP_IMAGE = "your-spring-app-image"
+  agent none
+
+  environment {
+    DOCKER_IMAGE = "MinhAnWolf/test-jenkins"
+  }
+
+  stages {
+    stage("Test") {
+      agent {
+          docker {
+            image 'gradle:7.2.0-jdk17'
+            args '-u 0:0 -v /tmp:/root/.cache'
+          }
+      }
+      steps {
+        sh "./gradlew build"
+        sh "./gradlew test"
+      }
     }
 
-    stages {
-//         stage("Build") {
-//             steps {
-//                 script {
-//                     // Xây dựng ứng dụng Spring Boot bằng Gradle
-//                     docker.image(GRADLE_IMAGE).inside {
-//                         sh "gradle build"
-//                     }
-//                 }
-//             }
-//         }
-
-        stage("Test") {
-            steps {
-                script {
-                    // Chạy các bài kiểm tra của ứng dụng Spring Boot
-                    docker.image(GRADLE_IMAGE).inside {
-                        sh "gradle test"
-                    }
-                }
-            }
+    stage("build") {
+      agent { node {label 'master'}}
+      environment {
+        DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
+      }
+      steps {
+        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} . "
+        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
+        sh "docker image ls | grep ${DOCKER_IMAGE}"
+        withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+            sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
+            sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+            sh "docker push ${DOCKER_IMAGE}:latest"
         }
 
-//         stage("Package") {
-//             steps {
-//                 script {
-//                     // Copy các tệp liên quan đến ứng dụng Spring Boot vào thư mục build
-//                     sh "cp -r build/libs /tmp/"
-//                 }
-//             }
-//         }
-//
-//         stage("Deploy") {
-//             steps {
-//                 script {
-//                     // Xây dựng ảnh Docker cho ứng dụng Spring Boot
-//                     docker.build(SPRING_APP_IMAGE, "--build-arg JAR_FILE=/tmp/libs/your-spring-app.jar .")
-//
-//                     // Đăng nhập vào Docker Hub hoặc hệ thống Docker Registry
-//                     withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-//                         sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
-//                     }
-//
-//                     // Đẩy ảnh Docker lên Docker Registry
-//                     docker.withRegistry('https://registry.example.com', 'docker-hub') {
-//                         sh "docker push $SPRING_APP_IMAGE"
-//                     }
-//                 }
-//             }
-//         }
+        //clean to save disk
+        sh "docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}"
+        sh "docker image rm ${DOCKER_IMAGE}:latest"
+      }
     }
+  }
 
-    post {
-        success {
-            echo "SUCCESSFUL"
-        }
-        failure {
-            echo "FAILED"
-        }
+  post {
+    success {
+      echo "SUCCESSFUL"
     }
+    failure {
+      echo "FAILED"
+    }
+  }
 }
