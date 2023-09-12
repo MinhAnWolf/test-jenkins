@@ -8,12 +8,12 @@ pipeline {
 
   stages {
     stage("Test") {
-      agent {
-          docker {
-            image 'gradle:7.2.0-jdk17'
-            args '-u 0:0 -v /tmp:/root/.cache'
-          }
-      }
+//       agent {
+//           docker {
+//             image 'gradle:7.2.0-jdk17'
+//             args '-u 0:0 -v /tmp:/root/.cache'
+//           }
+//       }
       steps {
         sh "./gradlew build"
         sh "./gradlew test"
