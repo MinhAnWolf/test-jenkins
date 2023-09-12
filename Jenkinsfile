@@ -12,21 +12,21 @@ pipeline {
         stage('Build') {
             steps {
                 // Bước này dùng để xây dựng ứng dụng Spring Boot
-                sh './mvnw clean package' // Hoặc './gradlew build' nếu bạn sử dụng Gradle
+                sh './gradlew build' // Hoặc './gradlew build' nếu bạn sử dụng Gradle
             }
         }
 
         stage('Test') {
             steps {
                 // Bước này dùng để chạy các bài kiểm tra
-                sh './mvnw test' // Hoặc './gradlew test' nếu bạn sử dụng Gradle
+                sh './gradlew test' // Hoặc './gradlew test' nếu bạn sử dụng Gradle
             }
         }
 
         stage('Deploy') {
             steps {
                 // Bước này dùng để triển khai ứng dụng Spring Boot, ví dụ qua Docker hoặc một máy chủ ứng dụng
-                sh 'docker build -t my-spring-app . && docker run -p 8080:8080 my-spring-app' // Ví dụ triển khai qua Docker
+                sh 'docker build -t my-spring-app . && docker run -p 8081:8081 my-spring-app' // Ví dụ triển khai qua Docker
             }
         }
     }
