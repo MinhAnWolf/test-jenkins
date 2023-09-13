@@ -4,7 +4,6 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Bước này để checkout mã nguồn từ kho lưu trữ, ví dụ Git
                 checkout scm
             }
         }
