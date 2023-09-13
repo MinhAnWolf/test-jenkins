@@ -14,6 +14,7 @@ pipeline {
                 script {
                    sh 'chmod +x ./gradlew'
                 }
+                tool name: 'gradle-tool', type: 'Gradle'
                 // Bước này để thực hiện build
                 sh './gradlew build'
             }
