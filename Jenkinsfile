@@ -1,18 +1,12 @@
 pipeline {
-    agent any
-
-//      tools {
-//             // Use Gradle from the predefined Tool Installation
-//             gradle 'gradle-tool'
-//      }
+    agent {
+        docker {
+          image 'openjdk:17'
+        }
+    }
 
     stages {
         stage('Build') {
-            agent {
-                docker {
-                    image 'openjdk:17'
-                }
-            }
             steps {
                 script {
                    sh 'chmod +x ./gradlew'
