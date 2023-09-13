@@ -7,12 +7,12 @@ pipeline {
      }
 
     stages {
-        agent {
-            docker {
-                image 'openjdk:17'
-            }
-        }
         stage('Build') {
+            agent {
+                docker {
+                    image 'openjdk:17'
+                }
+            }
             steps {
                 script {
                    sh 'chmod +x ./gradlew'
