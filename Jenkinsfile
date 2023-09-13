@@ -4,9 +4,14 @@ pipeline {
      tools {
             // Use Gradle from the predefined Tool Installation
             gradle 'gradle-tool'
-        }
+     }
 
     stages {
+        agent {
+            docker {
+                image 'openjdk:17'
+            }
+        }
         stage('Build') {
             steps {
                 script {
