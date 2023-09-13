@@ -9,11 +9,11 @@ pipeline {
         }
 
         stage('Build') {
-        tool name: 'gradle-tool', type: 'Gradle'
             steps {
                 script {
                    sh 'chmod +x ./gradlew'
                 }
+                tool name: 'gradle-tool', type: 'Gradle'
                 // Bước này để thực hiện build
                 sh './gradlew build'
             }
