@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+     tools {
+            // Use Gradle from the predefined Tool Installation
+            gradle 'Gradle 7.0'
+        }
+
     stages {
         stage('Checkout') {
             steps {
@@ -13,7 +18,6 @@ pipeline {
                 script {
                    sh 'chmod +x ./gradlew'
                 }
-                tool name: 'gradle-tool', type: 'Gradle'
                 // Bước này để thực hiện build
                 sh './gradlew build'
             }
