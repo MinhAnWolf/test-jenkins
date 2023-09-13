@@ -10,6 +10,7 @@ pipeline {
         }
 
         stage('Build') {
+        tool name: 'gradle-tool', type: 'Gradle'
             steps {
                 script {
                    sh 'chmod +x ./gradlew'
