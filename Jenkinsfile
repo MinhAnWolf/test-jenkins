@@ -3,7 +3,7 @@ pipeline {
 
      tools {
             // Use Gradle from the predefined Tool Installation
-            gradle 'Gradle 7.0'
+            gradle 'gradle-tool'
         }
 
     stages {
