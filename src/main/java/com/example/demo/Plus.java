@@ -9,6 +9,7 @@ public class Plus {
   }
 
   public void test() {
+    System.out.println("Test merge request <3");
     System.out.println("hello word");
   }
 }
