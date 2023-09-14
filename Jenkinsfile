@@ -10,14 +10,14 @@ pipeline {
         stage('Build') {
             steps {
                 // Bước này để thực hiện build
-                sh './gradlew build'
+                bat './gradlew build'
             }
         }
 
         stage('Test') {
             steps {
                 // Bước này để thực hiện các bước kiểm tra
-                sh './gradlew test'
+                bat './gradlew test'
             }
         }
     }
