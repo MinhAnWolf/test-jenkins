@@ -4,9 +4,6 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                script {
-                   sh 'chmod +x ./gradlew'
-                }
                 // Bước này để thực hiện build
                 sh './gradlew build'
             }
