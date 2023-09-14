@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class Plus {
   public int plus() {
-    return 1 + 3;
+    return 1000 + 2;
   }
 
   public void test() {
-    System.out.println("Test merge request <3");
+    System.out.println("Test merge request");
     System.out.println("hello word");
   }
 }
